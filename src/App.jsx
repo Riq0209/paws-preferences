@@ -150,6 +150,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [likeCount, setLikeCount] = useState(0);
+  const [dislikeCount, setDislikeCount] = useState(0);
   const [currentCat, setCurrentCat] = useState(null);
   const [likedCats, setLikedCats] = useState([]);
   const [currentRoute, setCurrentRoute] = useState('home'); // 'home' or 'favorites'
@@ -307,7 +308,6 @@ function App() {
       // Also refresh for dislikes to keep flow fast
       handleRefresh();
     }
-    setCurrent((prev) => prev + 1);
   };
 
   return (

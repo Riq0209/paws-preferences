@@ -148,6 +148,7 @@ function CatCard({ cat, onSwipe, onRefresh }) {
 function App() {
   const [cats, setCats] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const [likeCount, setLikeCount] = useState(0);
   const [currentCat, setCurrentCat] = useState(null);
   const [likedCats, setLikedCats] = useState([]);
@@ -155,34 +156,86 @@ function App() {
   const [catIndex, setCatIndex] = useState(0); // Track current position in cats array
   const [preloadedImages, setPreloadedImages] = useState(new Set()); // Track preloaded images
 
+  // Set document title
+  useEffect(() => {
+    document.title = 'CATinder';
+  }, []);
+
   useEffect(() => {
     async function fetchCats() {
       setLoading(true);
+      setLoadingProgress(10);
+      
       try {
-        // Fetch smaller batch for faster initial response
+        // Fetch cat list
+        setLoadingProgress(30);
         const res = await fetch(API_CATS_URL);
         const catList = await res.json();
         setCats(catList);
         setCurrentCat(catList[0]);
         setCatIndex(0);
+        setLoadingProgress(50);
         
-        // Preload first few images immediately
-        preloadImages(catList.slice(0, PRELOAD_BUFFER));
+        // Preload first batch of images with progress tracking
+        const preloadBatch = catList.slice(0, PRELOAD_BUFFER);
+        let loadedCount = 0;
+        
+        const preloadPromises = preloadBatch.map((cat, index) => {
+          return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+              loadedCount++;
+              const progress = 50 + (loadedCount / preloadBatch.length) * 40;
+              setLoadingProgress(progress);
+              setPreloadedImages(prev => new Set([...prev, cat.id]));
+              resolve();
+            };
+            img.onerror = () => {
+              loadedCount++;
+              const progress = 50 + (loadedCount / preloadBatch.length) * 40;
+              setLoadingProgress(progress);
+              resolve();
+            };
+            img.src = `https://cataas.com/cat/${cat.id}`;
+          });
+        });
+        
+        await Promise.all(preloadPromises);
+        setLoadingProgress(100);
+        
+        // Small delay to show completion
+        setTimeout(() => {
+          setLoading(false);
+        }, 500);
+        
       } catch (error) {
         console.error('Failed to fetch cats:', error);
-        // Fallback to individual cat fetch (reduced count)
+        setLoadingProgress(30);
+        
+        // Fallback to individual cat fetch
         const catList = [];
         for (let i = 0; i < 10; i++) {
-          const res = await fetch(API_URL);
-          const data = await res.json();
-          catList.push(data);
+          try {
+            const res = await fetch(API_URL);
+            const data = await res.json();
+            catList.push(data);
+            setLoadingProgress(30 + (i / 10) * 60);
+          } catch (err) {
+            console.error('Failed to fetch individual cat:', err);
+          }
         }
         setCats(catList);
         setCurrentCat(catList[0]);
         setCatIndex(0);
+        
+        // Preload fallback images
         preloadImages(catList.slice(0, PRELOAD_BUFFER));
+        setLoadingProgress(100);
+        
+        setTimeout(() => {
+          setLoading(false);
+        }, 500);
       }
-      setLoading(false);
     }
     fetchCats();
   }, []);
@@ -259,9 +312,57 @@ function App() {
 
   return (
     <div className="min-h-screen w-full max-w-md mx-auto flex flex-col items-center bg-gradient-to-br from-pink-200 to-indigo-200 overflow-x-hidden relative">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 mt-8 sm:mt-12 text-gray-800 px-4">CATinder</h1>
-      
-      <div className="flex-1 flex flex-col w-full pb-20">
+      {loading ? (
+        // Loading Screen
+        <div className="flex-1 flex flex-col items-center justify-center w-full px-8">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl sm:text-5xl font-bold text-gray-800 mb-4">CATinder</h1>
+            <p className="text-lg text-gray-600">Finding the purr-fect cats for you...</p>
+          </div>
+          
+          {/* Animated Cat Loading Icon */}
+          <div className="mb-8">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full bg-white shadow-lg flex items-center justify-center animate-bounce">
+                {/* Cat Face Icon */}
+                <div className="text-4xl">🐱</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-full max-w-xs mb-4">
+            <div className="bg-white bg-opacity-50 rounded-full h-3 overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${loadingProgress}%` }}
+              />
+            </div>
+            <p className="text-center text-sm text-gray-600 mt-2">{Math.round(loadingProgress)}%</p>
+          </div>
+
+          {/* Loading Messages */}
+          <div className="text-center">
+            {loadingProgress < 30 && (
+              <p className="text-sm text-gray-600 animate-pulse">🐱 Connecting to cat database...</p>
+            )}
+            {loadingProgress >= 30 && loadingProgress < 50 && (
+              <p className="text-sm text-gray-600 animate-pulse">📸 Fetching adorable cats...</p>
+            )}
+            {loadingProgress >= 50 && loadingProgress < 90 && (
+              <p className="text-sm text-gray-600 animate-pulse">🖼️ Preloading cat photos...</p>
+            )}
+            {loadingProgress >= 90 && (
+              <p className="text-sm text-gray-600 animate-pulse">✨ Almost ready to swipe!</p>
+            )}
+          </div>
+        </div>
+      ) : (
+        // Main App Content
+        <>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 mt-8 sm:mt-12 text-gray-800 px-4">CATinder</h1>
+          
+          <div className="flex-1 flex flex-col w-full pb-20">
         {currentRoute === 'favorites' ? (
           // Favorites Route - Show Liked Cats
           <div className="w-full max-w-md px-3 sm:px-4 pt-4 mx-auto">
@@ -365,6 +466,8 @@ function App() {
           </button>
         </div>
       </nav>
+        </>
+      )}
     </div>
   );
 }

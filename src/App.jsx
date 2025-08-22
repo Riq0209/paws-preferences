@@ -110,31 +110,31 @@ function CatCard({ cat, onSwipe, onRefresh }) {
       <div className="flex justify-center gap-4 sm:gap-6 md:gap-10 mt-4 sm:mt-6 w-full">
         <button
           aria-label="Refresh"
-          className="bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-full p-3 sm:p-4 shadow-lg"
+          className="bg-blue-100 hover:bg-blue-200 active:bg-blue-300 text-blue-600 rounded-full p-3 sm:p-4 shadow-lg transform transition-all duration-150 ease-in-out hover:scale-110 active:scale-95 active:shadow-md"
           onClick={() => onRefresh()}
         >
           {/* Refresh icon SVG */}
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 sm:w-8 sm:h-8">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 sm:w-8 sm:h-8 transition-transform duration-150">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582M20 20v-5h-.581M5.582 9A7.001 7.001 0 0112 5c1.657 0 3.156.576 4.318 1.535M18.418 15A7.001 7.001 0 0112 19c-1.657 0-3.156-.576-4.318-1.535" />
           </svg>
         </button>
         <button
           aria-label="Dislike"
-          className="bg-red-100 hover:bg-red-200 text-red-600 rounded-full p-3 sm:p-4 shadow-lg"
+          className="bg-red-100 hover:bg-red-200 active:bg-red-300 text-red-600 rounded-full p-3 sm:p-4 shadow-lg transform transition-all duration-150 ease-in-out hover:scale-110 active:scale-95 active:shadow-md"
           onClick={() => onSwipe('left')}
         >
           {/* X icon SVG */}
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 sm:w-8 sm:h-8">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 sm:w-8 sm:h-8 transition-transform duration-150">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
         <button
           aria-label="Like"
-          className="bg-pink-100 hover:bg-pink-200 text-pink-600 rounded-full p-3 sm:p-4 shadow-lg"
+          className="bg-pink-100 hover:bg-pink-200 active:bg-pink-300 text-pink-600 rounded-full p-3 sm:p-4 shadow-lg transform transition-all duration-150 ease-in-out hover:scale-110 active:scale-95 active:shadow-md"
           onClick={() => onSwipe('right')}
         >
           {/* Heart icon SVG */}
-          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-6 h-6 sm:w-8 sm:h-8">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-6 h-6 sm:w-8 sm:h-8 transition-transform duration-150">
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
           </svg>
         </button>

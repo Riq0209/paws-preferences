@@ -1,9 +1,9 @@
 {
-  "name": "paws-preferences",
+  "name": "catinder-web-app",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://[YOUR_GITHUB_USERNAME].github.io/paws-preferences",
+  "homepage": "https://Riq0209.github.io/paws-preferences",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

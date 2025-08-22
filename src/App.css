@@ -1,0 +1,60 @@
+/* existing styles */
+
+@keyframes swipeLeft {
+  0% { transform: translateX(0) rotate(0deg); opacity: 1; }
+  80% { transform: translateX(-120px) rotate(-10deg); opacity: 0.7; }
+  100% { transform: translateX(-400px) rotate(-20deg); opacity: 0; }
+}
+@keyframes swipeRight {
+  0% { transform: translateX(0) rotate(0deg); opacity: 1; }
+  80% { transform: translateX(120px) rotate(10deg); opacity: 0.7; }
+  100% { transform: translateX(400px) rotate(20deg); opacity: 0; }
+}
+.animate-swipe-left {
+  animation: swipeLeft 0.4s forwards;
+}
+.animate-swipe-right {
+  animation: swipeRight 0.4s forwards;
+}
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  text-align: center;
+  
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}

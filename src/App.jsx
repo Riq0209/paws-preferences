@@ -8,7 +8,7 @@ const API_URL = "https://cataas.com/cat?json=true";
 const API_CATS_URL = "https://cataas.com/api/cats?limit=20"; // Reduced for faster response
 const PRELOAD_BUFFER = 5; // Number of images to preload ahead
 
-function CatCard({ cat, onSwipe, onRefresh }) {
+function CatCard({ cat, onSwipe, onRefresh, onImageClick }) {
   const [{ x, rot }, api] = useSpring(() => ({ x: 0, rot: 0 }));
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -85,9 +85,10 @@ function CatCard({ cat, onSwipe, onRefresh }) {
         <img
           src={`https://cataas.com/cat/${cat.id}`}
           alt="Cat"
-          className="rounded-lg w-full h-48 sm:h-56 md:h-64 object-cover mb-3 sm:mb-4"
+          className="rounded-lg w-full h-76 sm:h-72 md:h-80 object-cover mb-3 sm:mb-4 cursor-pointer"
           onLoad={() => setImageLoaded(true)}
           onError={() => setImageLoaded(true)}
+          onClick={() => onImageClick(cat)}
           style={{ 
             opacity: imageLoaded ? 1 : 0.7,
             transition: 'opacity 0.2s ease'
@@ -101,7 +102,7 @@ function CatCard({ cat, onSwipe, onRefresh }) {
           <span>👈</span>
           <span>Swipe left to pass</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2"> 
           <span>Swipe right to like</span>
           <span>👉</span>
         </div>
@@ -156,6 +157,7 @@ function App() {
   const [currentRoute, setCurrentRoute] = useState('home'); // 'home' or 'favorites'
   const [catIndex, setCatIndex] = useState(0); // Track current position in cats array
   const [preloadedImages, setPreloadedImages] = useState(new Set()); // Track preloaded images
+  const [fullscreenCat, setFullscreenCat] = useState(null); // For fullscreen image popup
 
   // Set document title
   useEffect(() => {
@@ -310,6 +312,14 @@ function App() {
     }
   };
 
+  const handleImageClick = (cat) => {
+    setFullscreenCat(cat);
+  };
+
+  const closeFullscreen = () => {
+    setFullscreenCat(null);
+  };
+
   return (
     <div className="min-h-screen w-full max-w-md mx-auto flex flex-col items-center bg-gradient-to-br from-pink-200 to-indigo-200 overflow-x-hidden relative">
       {loading ? (
@@ -383,7 +393,8 @@ function App() {
                     <img
                       src={`https://cataas.com/cat/${cat.id}`}
                       alt={`Liked cat ${index + 1}`}
-                      className="w-full h-40 object-cover rounded-lg"
+                      className="w-full h-40 object-cover rounded-lg cursor-pointer"
+                      onClick={() => handleImageClick(cat)}
                     />
                   </div>
                 ))}
@@ -392,12 +403,12 @@ function App() {
           </div>
         ) : (
           // Home Route - Main Swiping Page
-          <div className="flex-1 flex flex-col justify-center items-center">
+          <div className="flex-1 flex flex-col items-center pt-4 sm:pt-6">
             <div className="w-full flex justify-center px-4">
               {loading ? (
                 <div className="text-xl">Loading cats...</div>
               ) : currentCat ? (
-                <CatCard cat={currentCat} onSwipe={handleSwipe} onRefresh={handleRefresh} />
+                <CatCard cat={currentCat} onSwipe={handleSwipe} onRefresh={handleRefresh} onImageClick={handleImageClick} />
               ) : (
                 <div className="text-xl">No cats available! 🐾</div>
               )}
@@ -466,6 +477,35 @@ function App() {
           </button>
         </div>
       </nav>
+
+      {/* Fullscreen Image Popup */}
+      {fullscreenCat && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
+          onClick={closeFullscreen}
+        >
+          <div className="relative max-w-full max-h-full flex items-center justify-center">
+            {/* Close button */}
+            <button
+              onClick={closeFullscreen}
+              className="absolute top-4 right-4 z-10 bg-white bg-opacity-80 hover:bg-opacity-100 text-black rounded-full p-2 shadow-lg transition-all duration-200 hover:scale-110"
+              aria-label="Close fullscreen image"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            {/* Fullscreen image */}
+            <img
+              src={`https://cataas.com/cat/${fullscreenCat.id}`}
+              alt="Full size cat"
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
         </>
       )}
     </div>

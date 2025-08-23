@@ -5,33 +5,33 @@ import "./App.css";
 
 
 const API_URL = "https://cataas.com/cat?json=true";
-const API_CATS_URL = "https://cataas.com/api/cats?limit=20"; // Reduced for faster response
-const PRELOAD_BUFFER = 5; // Number of images to preload ahead
+const API_CATS_URL = "https://cataas.com/api/cats?limit=20"; 
+const PRELOAD_BUFFER = 5; 
 
 function CatCard({ cat, onSwipe, onRefresh, onImageClick }) {
   const [{ x, rot }, api] = useSpring(() => ({ x: 0, rot: 0 }));
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const cardLimit = 180; // px, max drag before edge
+  const cardLimit = 180; 
 
   const bind = useDrag(({ down, movement: [mx], velocity, direction: [dx] }) => {
-    // Limit drag to cardLimit
+
     const limitedMx = Math.max(-cardLimit, Math.min(cardLimit, mx));
     
-    // Show indicators only when actively dragging with some movement
+    
     setIsDragging(down && Math.abs(mx) > 20);
     
     if (!down && (velocity > 0.2 || Math.abs(mx) > cardLimit)) {
-      // If released fast enough or dragged far enough -> swipe away
+      
       const dir = dx > 0 || mx > cardLimit / 2 ? "right" : "left";
-      // Hide indicators when swipe completes
+      
       setIsDragging(false);
-      // Immediately call onSwipe for instant cat change
+      
       onSwipe(dir);
-      // Then start animation with immediate: true for instant snap
+      
       api.start({ x: dx * 500 || (mx > 0 ? 500 : -500), rot: dx * 15 || (mx > 0 ? 15 : -15), immediate: true });
     } else {
-      // While dragging, limit to cardLimit
+     
       api.start({ x: down ? limitedMx : 0, rot: down ? limitedMx / 20 : 0, immediate: down });
     }
   });
@@ -155,9 +155,9 @@ function App() {
   const [currentCat, setCurrentCat] = useState(null);
   const [likedCats, setLikedCats] = useState([]);
   const [currentRoute, setCurrentRoute] = useState('home'); // 'home' or 'favorites'
-  const [catIndex, setCatIndex] = useState(0); // Track current position in cats array
-  const [preloadedImages, setPreloadedImages] = useState(new Set()); // Track preloaded images
-  const [fullscreenCat, setFullscreenCat] = useState(null); // For fullscreen image popup
+  const [catIndex, setCatIndex] = useState(0); 
+  const [preloadedImages, setPreloadedImages] = useState(new Set()); 
+  const [fullscreenCat, setFullscreenCat] = useState(null); 
 
   // Set document title
   useEffect(() => {
@@ -179,7 +179,7 @@ function App() {
         setCatIndex(0);
         setLoadingProgress(50);
         
-        // Preload first batch of images with progress tracking
+        
         const preloadBatch = catList.slice(0, PRELOAD_BUFFER);
         let loadedCount = 0;
         
@@ -206,7 +206,7 @@ function App() {
         await Promise.all(preloadPromises);
         setLoadingProgress(100);
         
-        // Small delay to show completion
+     
         setTimeout(() => {
           setLoading(false);
         }, 500);
@@ -215,7 +215,7 @@ function App() {
         console.error('Failed to fetch cats:', error);
         setLoadingProgress(30);
         
-        // Fallback to individual cat fetch
+       
         const catList = [];
         for (let i = 0; i < 10; i++) {
           try {
@@ -243,7 +243,7 @@ function App() {
     fetchCats();
   }, []);
 
-  // Preload images function
+ 
   const preloadImages = (catsToPreload) => {
     catsToPreload.forEach(cat => {
       if (!preloadedImages.has(cat.id)) {
@@ -256,16 +256,16 @@ function App() {
     });
   };
 
-  // Auto-fetch more cats when running low (optimized)
+  
   useEffect(() => {
     const fetchMoreCats = async () => {
-      if (catIndex >= cats.length - 5 && cats.length > 0) { // Trigger earlier (5 left instead of 10)
+      if (catIndex >= cats.length - 5 && cats.length > 0) { 
         try {
           const res = await fetch(API_CATS_URL);
           const newCats = await res.json();
           setCats(prev => [...prev, ...newCats]);
           
-          // Preload next batch of images
+         
           preloadImages(newCats.slice(0, PRELOAD_BUFFER));
         } catch (error) {
           console.error('Failed to fetch more cats:', error);
@@ -275,7 +275,7 @@ function App() {
     fetchMoreCats();
   }, [catIndex, cats.length]);
 
-  // Preload upcoming images as user progresses
+ 
   useEffect(() => {
     if (cats.length > 0) {
       const upcomingCats = cats.slice(catIndex + 1, catIndex + 1 + PRELOAD_BUFFER);
@@ -284,13 +284,13 @@ function App() {
   }, [catIndex, cats]);
 
   const handleRefresh = () => {
-    // Instantly move to next cat from pre-fetched array
+    
     const nextIndex = catIndex + 1;
     if (nextIndex < cats.length) {
       setCatIndex(nextIndex);
       setCurrentCat(cats[nextIndex]);
     } else {
-      // If we've exhausted the array, restart from beginning
+      
       setCatIndex(0);
       setCurrentCat(cats[0]);
     }
@@ -299,15 +299,15 @@ function App() {
   const handleSwipe = async (direction) => {
     if (direction === 'right') {
       setLikeCount((prev) => prev + 1);
-      // Add current cat to liked cats
+    
       if (currentCat) {
         setLikedCats((prev) => [...prev, currentCat]);
       }
-      // Refresh to next cat for likes
+      
       handleRefresh();
     } else if (direction === 'left') {
       setDislikeCount((prev) => prev + 1);
-      // Also refresh for dislikes to keep flow fast
+     
       handleRefresh();
     }
   };
